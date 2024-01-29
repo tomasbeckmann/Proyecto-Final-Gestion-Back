@@ -14,8 +14,6 @@ class User(db.Model):
     userrol_id = Column(Integer, ForeignKey('userrol.id'))
     user_rol= db.relationship(UserRol)
 
-    
-
     def serialize(self):
         return {
         "id": self.id,
@@ -25,8 +23,8 @@ class User(db.Model):
         "rut":self.rut
         }
 
-class UserRol(db.Model):
-    __tablename__= "userrol"
+class User_rol(db.Model):
+    __tablename__= "user_rol"
     id=  db.Column(db.Integer, primary_key=True)
     name= db.Column(db.String(250), nullable=False)
     
@@ -55,16 +53,38 @@ class Document(db.Model):
 
 class Activity(db.Model):
     __tablename__="activity"     
-     id= db.Column(db.Integer, primary_key=True) 
-     name = db.Column(db.String(250), nullable=False)  
-     place = db.Column(db.String(250), nullable=False)  
-     description= db.Column(db.String(250), nullable=False)
-     date= db.Column(db.datetime.now(), nullable=False)
-     status= db.Column(db.Integer, nullable=False)
+    id= db.Column(db.Integer, primary_key=True) 
+    name = db.Column(db.String(250), nullable=False)  
+    place = db.Column(db.String(250), nullable=False)  
+    description= db.Column(db.String(250), nullable=False)
+    date= db.Column(db.datetime.now(), nullable=False)
+    status= db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, ForeignKey('user.id'), nullable=False)
+    user = db.relationship(User)
+    task_id = db.Column(db.Integer, ForeignKey('task.id'), nullable=False)
+    task = db.relationship(Task)
 
+    def serialize(self):
+        return {
+          "id": self.id,
+          "name": self.name, 
+          "place": self.place,
+          "description": self.description,
+          "date": self.date,
+          "status": self.status,
+          "user_id": self.user_id,
+          "task_id": self.task_id,
+          }
 
 class Task(db.Model):
     tablename = "task"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
     description = db.Column(db.String(250), nullable=False)  
+    
+    def serialize(self):
+        return {
+          "id": self.id,
+          "name": self.name, 
+          "description": self.description
+          }
