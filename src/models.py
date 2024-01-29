@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -11,8 +12,8 @@ class User(db.Model):
     deleted= db.Column(db.Boolean(5), nullable=False)
     email = db.Column(db.String(250), unique= True)
     password = db.Column(db.String(250),unique=False, nullable=False)
-    userrol_id = Column(Integer, ForeignKey('userrol.id'))
-    user_rol= db.relationship(UserRol)
+    user_rol_id = db.Column(db.Integer, db.ForeignKey('user_rol.id'))
+    user_rol= db.relationship('User_rol')
 
     def serialize(self):
         return {
@@ -39,8 +40,8 @@ class Document(db.Model):
     name = db.Column(db.String(250), nullable=False)  
     description = db.Column(db.String(250), nullable=False)
     link = db.Column(db.String(450), nullable=False)
-    user_id= db.Column(Integer, ForeignKey('user.id'))
-    user = db.relationship(User)
+    user_id= db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User')
 
 
     def serialize(self):
@@ -57,12 +58,12 @@ class Activity(db.Model):
     name = db.Column(db.String(250), nullable=False)  
     place = db.Column(db.String(250), nullable=False)  
     description= db.Column(db.String(250), nullable=False)
-    date= db.Column(db.datetime.now(), nullable=False)
+    date= db.Column(db.DateTime, default=datetime.now)
     status= db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship(User)
-    task_id = db.Column(db.Integer, ForeignKey('task.id'), nullable=False)
-    task = db.relationship(Task)
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
+    task = db.relationship('Task')
 
     def serialize(self):
         return {

@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, UserRol, Document, Activity, Task
+from models import db, User, User_rol, Document, Activity, Task
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -100,9 +100,9 @@ def update_user():
 
 @app.route('/user_rol', methods=['POST'])
 def create_user_rol():
-  get_from_body = request.json.get("email")
+  get_from_body = request.json.get("id")
   user_rol = User_rol() 
-  user_rol_exist = User_rol.query.filter_by(email=get_from_body).first()
+  user_rol_exist = User_rol.query.filter_by(id=get_from_body).first()
   if user_rol_exist is not None:
     return "The User Role already exist"
   else:
@@ -129,18 +129,18 @@ def delete_user_rol(id):
       "status": "Success"
     }), 203
   else:
-    return jsonify({"error":"User not found"}),404
+    return jsonify({"error":"User role not found"}),404
 
 @app.route('/user_rol', methods=["PUT"])
 def update_user_rol():
-  email_to_search = request.json.get("email")
-  user_rol = User_rol.query.filter_by(email=email_to_search).first()
+  id_to_search = request.json.get("id")
+  user_rol = User_rol.query.filter_by(id=id_to_search).first()
   if user_rol is None:
     return "The user role does not exist", 401
   else:
     user_rol.name= request.json.get("name")
 
-    db.session.add(user)
+    db.session.add(user_rol)
     db.session.commit()
 
     return f"User updated", 201
