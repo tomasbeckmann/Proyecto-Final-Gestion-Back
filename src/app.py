@@ -17,7 +17,7 @@ app.url_map.strict_slashes = False
 #if db_url is not None:
    # app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://")
 #else:
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///test.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 MIGRATE = Migrate(app, db)
@@ -52,6 +52,8 @@ def create_user():
     user.email=  request.json.get("email")
     user.password=  request.json.get("password")
     user.userrol_id= request.json.get("userrol_id")
+    db.session.add(user)
+    db.session.commit()
     
     return f"The user was created", 201
 
@@ -107,6 +109,8 @@ def create_user_rol():
     return "The User Role already exist"
   else:
     user_rol.name= request.json.get("name")
+    db.session.add(user_rol)
+    db.session.commit()
     
     return f"The user role was created", 201
 
