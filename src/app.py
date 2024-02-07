@@ -9,6 +9,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, User_rol, Document, Activity, Task
+from  flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -19,6 +20,7 @@ app.url_map.strict_slashes = False
 #else:
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///test.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = True
 
 MIGRATE = Migrate(app, db)
 db.init_app(app)
@@ -164,18 +166,27 @@ def update_user_rol():
 
 #Document CRUD
 
-@app.route('/document', methods=['POST'])
+@app.route('/document', methods=['POST'])           
 def create_document():
+  search_for_id =request.json.get("user_id")
+  search_for_name =request.json.get("name")
   document = Document() 
-  document.name= request.json.get("name")
-  document.description= request.json.get("description")
-  document.link= request.json.get("link")
-  document.user_id= request.json.get("user_id")
+  document_exist = Document.query.filter_by(user_id=search_for_id ,name= search_for_name).first()
+  if document_exist is not None:
+    return jsonify({
+       "success": False
+    }),401
+  else:
+   document.name= request.json.get("name")
+   document.description= request.json.get("description")
+   document.link= request.json.get("link")
+   document.user_id= request.json.get("user_id")
 
   db.session.add(document)
   db.session.commit()
 
   return f"The document was created", 201
+
 
 @app.route("/document/<int:id>", methods=['GET'])
 def get_document(id):
@@ -222,18 +233,18 @@ def update_document():
 @app.route('/task', methods=['POST'])
 def create_task():
   task = Task() 
-  """get_from_body = request.json.get("id")
-  task_exist = Task.query.filter_by(id=get_from_body).first()
-  if task_exist is not None:
-    return "The task already exist"
-  else:"""
+  #search_id = request.json.get("id")
+  #task_exist = Task.query.filter_by(user_id=search_id).first()
+  #if task_exist is not None:
+    #return "The task already exist"
+  #else:
   task.name= request.json.get("name")
   task.description= request.json.get("description")
   
   db.session.add(task)
   db.session.commit()
 
-  return f"The activity was created", 201
+  return f"The task was created", 201
 
 @app.route("/task/<int:id>", methods=['GET'])
 def get_task(id):
@@ -276,17 +287,20 @@ def update_task():
 
 @app.route('/activity', methods=['POST'])
 def create_activity():
- # get_from_body = request.json.get("id")
+  #get_from_body = request.json.get("id")
   activity = Activity() 
-  #activity_exist = Activity.query.filter_by(id=get_from_body).first()
+  #activity_exist = Activity.query.filter_by(user_id=get_from_body).first()
   #if activity_exist is not None:
-   # return "The activity already exist"
+   #return "The activity already exist"
   #else:
   activity.name= request.json.get("name")
   activity.place= request.json.get("place")
   activity.description= request.json.get("description")
   activity.date= request.json.get("date")
   activity.status= request.json.get("status")
+  activity.user_id =request.json.get("user_id")
+  activity.task_id =request.json.get("task_id")
+
   
   db.session.add(activity)
   db.session.commit()

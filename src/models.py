@@ -44,7 +44,7 @@ class Document(db.Model):
     description = db.Column(db.String(250), nullable=False)
     link = db.Column(db.String(450), nullable=False)
     user_id= db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User')
+    user = db.relationship(User)
 
 
     def serialize(self):
@@ -63,11 +63,16 @@ class Task(db.Model):
     tablename = "task"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
-    description = db.Column(db.String(250), nullable=False)  
+    description = db.Column(db.String(250), nullable=False) 
+    #user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    #user = db.relationship(User)
+
+
     
     def serialize(self):
         return {
           "id": self.id,
+          "user_id": self.user.id,
           "name": self.name, 
           "description": self.description
           }
