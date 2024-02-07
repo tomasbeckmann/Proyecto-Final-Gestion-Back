@@ -20,7 +20,7 @@ class User(db.Model):
     name = db.Column(db.String(250), nullable=False)
     last_name = db.Column(db.String(250), nullable=False)
     rut= db.Column(db.String(13), nullable=False)
-    deleted= db.Column(db.Boolean(5), nullable=False, default = False)
+    deleted= db.Column(db.Boolean(5), nullable=False, default= False)
     email = db.Column(db.String(250), unique= True)
     password = db.Column(db.String(250),unique=False, nullable=False)
     user_rol_id = db.Column(db.Integer, db.ForeignKey('user_rol.id'))
@@ -72,7 +72,7 @@ class Task(db.Model):
     def serialize(self):
         return {
           "id": self.id,
-          "user_id": self.user.id,
+          #"user_id": self.user.id,
           "name": self.name, 
           "description": self.description
           }

@@ -13,6 +13,7 @@ from  flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+bcrypt = Bcrypt(app)
 
 #db_url = os.getenv("DATABASE_URL")
 #if db_url is not None:
@@ -52,12 +53,31 @@ def create_user():
     user.rut=  request.json.get("rut")
     user.deleted=  request.json.get("deleted")
     user.email=  request.json.get("email")
-    user.password=  request.json.get("password")
+    password=  request.json.get("password")
+    passwordHash= bcrypt.generate_password_hash(password)
+    user.password = passwordHash
     user.user_rol_id= request.json.get("userrol_id")
     db.session.add(user)
     db.session.commit()
     
     return f"The user was created", 201
+  
+  #Login 
+@app.route('/login', methods=['POST'])
+def login():
+  user= request.json.get("email")
+  password= request.json.get("password")
+  
+  user_exist = User.query.filter_by(email= user).first()
+  if user_exist is not None:
+    if bcrypt.check_password_hash(user_exist.password, password):
+        
+        return f"Pass accepted", 201
+    else: 
+       return f"Incorrect password", 406
+  else:  
+       return f"The user doesn't exist", 401
+  
 
 @app.route("/users", methods=['GET'])
 def get_user():
@@ -77,7 +97,7 @@ def get_oneuser(id):
   if user is not None:
     return jsonify(user.serialize()), 200
   else:
-    return jsonify({"error":"User role not found"}),404
+    return jsonify({"error":"User not found"}),404
 
 
 @app.route("/user/<int:id>", methods=['DELETE'])
@@ -212,6 +232,7 @@ def delete_document(id):
 @app.route('/document', methods=["PUT"])
 def update_document():
   id_to_search = request.json.get("id")
+  document= Document()
   document = Document.query.filter_by(id=id_to_search).first()
   if document is None:
     return "The document does not exist", 401
@@ -339,8 +360,8 @@ def update_activity():
     activity.description= request.json.get("description")
     activity.date= request.json.get("date")
     activity.status= request.json.get("status")
-    activity.user= request.json.get("user")
-    activity.task= request.json.get("task")
+    activity.user_id= request.json.get("user_id")
+    activity.task_id= request.json.get("task_id")
     
     db.session.add(activity)
     db.session.commit()
