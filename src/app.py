@@ -2,6 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
+from datetime import timedelta
 from flask import Flask, request, jsonify, url_for
 from flask_migrate import Migrate
 from flask_swagger import swagger
@@ -9,11 +10,16 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, User_rol, Document, Activity, Task
+from flask_jwt_extended import JWTManager,create_access_token, get_jwt_identity, jwt_required
 from  flask_bcrypt import Bcrypt
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
+CORS(app)
 
 #db_url = os.getenv("DATABASE_URL")
 #if db_url is not None:
@@ -21,7 +27,12 @@ bcrypt = Bcrypt(app)
 #else:
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///test.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ECHO'] = True
+app.config['JWT_SECRET_KEY']= "SUPER-CLAVE_SECRETA"
+app.config['SECRET_KEY']= "PALABRA_SECRETA"
+
+app.config['SQLALCHEMY_ECHO'] = True   #ESTO SE DEBE ELIMINAR DESPUES
+
+expire_jwt= timedelta(minutes=5)
 
 MIGRATE = Migrate(app, db)
 db.init_app(app)
@@ -71,8 +82,14 @@ def login():
   user_exist = User.query.filter_by(email= user).first()
   if user_exist is not None:
     if bcrypt.check_password_hash(user_exist.password, password):
+        token= create_access_token(identity= user, expires_delta= expire_jwt)
         
-        return f"Pass accepted", 201
+        return jsonify({
+          "token": token,
+          "status": "success",
+          "user": user_exist.serialize()
+
+        }), 201
     else: 
        return f"Incorrect password", 406
   else:  
@@ -82,7 +99,6 @@ def login():
 @app.route("/users", methods=['GET'])
 def get_user():
   users = User.query.all()
-  print(users[0].user_rol)
   users= list(map(lambda user: user.serialize(), users))
   
 
