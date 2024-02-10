@@ -11,7 +11,7 @@ from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, User_rol, Document, Activity, Task
 from flask_jwt_extended import JWTManager,create_access_token, get_jwt_identity, jwt_required
-from  flask_bcrypt import Bcrypt
+from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 
 
@@ -21,11 +21,11 @@ jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
 CORS(app)
 
-#db_url = os.getenv("DATABASE_URL")
-#if db_url is not None:
-   # app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://")
-#else:
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///test.db"
+db_url = os.getenv("DATABASE_URL")
+if db_url is not None:
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+else:
+  app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///test.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY']= "SUPER-CLAVE_SECRETA"
 app.config['SECRET_KEY']= "PALABRA_SECRETA"
@@ -42,22 +42,16 @@ setup_admin(app)
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
-    return jsonify(error.to_dict()), error.status_code
-
-# generate sitemap with all your endpoints
-@app.route('/')
-def sitemap():
     return generate_sitemap(app)
 
 #User CRUD
-
 @app.route('/user', methods=['POST'])
 def create_user():
   get_from_body = request.json.get("email")
   user = User() 
   user_exist = User.query.filter_by(email=get_from_body).first()
   if user_exist is not None:
-    return "The User already exist"
+    return f"The User already exist", 409
   else:
     user.name= request.json.get("name")
     user.last_name= request.json.get("lastname")
@@ -91,7 +85,7 @@ def login():
 
         }), 201
     else: 
-       return f"Incorrect password", 406
+       return f"Incorrect password", 400
   else:  
        return f"The user doesn't exist", 401
   
