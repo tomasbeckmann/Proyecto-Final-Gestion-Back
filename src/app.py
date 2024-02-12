@@ -70,6 +70,7 @@ def create_user():
   #Login 
 @app.route('/login', methods=['POST'])
 def login():
+  print(request.get_json())
   user= request.json.get("email")
   password= request.json.get("password")
   
@@ -275,7 +276,9 @@ def create_task():
   db.session.add(task)
   db.session.commit()
 
-  return f"The task was created", 201
+  return jsonify({"msg": "The task was created",
+                  "success": True
+  }),201
 
 @app.route("/task/<int:id>", methods=['GET'])
 def get_task(id):
