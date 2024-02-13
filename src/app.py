@@ -118,7 +118,8 @@ def get_oneuser(id):
 def delete_user(id):
   user = User.query.filter_by(id=id).first()
   if user is not None:
-    db.session.delete(user)
+    user.deleted=  request.json.get("deleted")
+    db.session.add(user)
     db.session.commit()
     
     return jsonify({
