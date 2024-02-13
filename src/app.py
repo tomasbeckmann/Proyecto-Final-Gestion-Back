@@ -9,7 +9,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, User_rol, Document, Activity, Task
+from models import db, User, User_rol,Document, Task
 from flask_jwt_extended import JWTManager,create_access_token, get_jwt_identity, jwt_required
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
@@ -51,7 +51,7 @@ def create_user():
   user = User() 
   user_exist = User.query.filter_by(email=get_from_body).first()
   if user_exist is not None:
-    return f"The User already exist", 409
+    return jsonify({"error": "The User already exist"}), 409
   else:
     user.name= request.json.get("name")
     user.last_name= request.json.get("lastname")
@@ -65,7 +65,10 @@ def create_user():
     db.session.add(user)
     db.session.commit()
     
-    return f"The user was created", 201
+    return jsonify({
+      "msg": "The user was created",
+      "status": "success"
+    }), 201
   
   #Login 
 @app.route('/login', methods=['POST'])
@@ -86,9 +89,9 @@ def login():
 
         }), 201
     else: 
-       return f"Incorrect password", 400
+       return jsonify({"error": "Incorrect password"}), 400
   else:  
-       return f"The user doesn't exist", 401
+       return jsonify({"error": "User doesn't exist"}), 401
   
 
 @app.route("/users", methods=['GET'])
@@ -117,10 +120,12 @@ def delete_user(id):
   if user is not None:
     db.session.delete(user)
     db.session.commit()
+    
     return jsonify({
       "msg": "User deleted",
-      "status": "Success"
+      "status": "success"
     }), 203
+  
   else:
     return jsonify({"error":"User not found"}),404
 
@@ -142,7 +147,10 @@ def update_user():
     db.session.add(user)
     db.session.commit()
 
-    return f"User updated", 201
+    return jsonify({
+      "msg": "User updated",
+      "status": "success"
+    }), 201
 
 #UserRol CRUD
 
@@ -158,7 +166,10 @@ def create_user_rol():
     db.session.add(user_rol)
     db.session.commit()
     
-    return f"The user role was created", 201
+    return jsonify({
+      "msg": "User rol created",
+      "status": "success"
+    }), 201
 
 @app.route("/user_rol/<int:id>", methods=['GET'])
 def get_user_rol(id):
@@ -174,10 +185,12 @@ def delete_user_rol(id):
   if user_rol is not None:
     db.session.delete(user_rol)
     db.session.commit()
+   
     return jsonify({
       "msg": "User role deleted",
       "status": "Success"
     }), 203
+  
   else:
     return jsonify({"error":"User role not found"}),404
 
@@ -193,7 +206,10 @@ def update_user_rol():
     db.session.add(user_rol)
     db.session.commit()
 
-    return f"User updated", 201
+    return jsonify({
+      "msg": "User role updated",
+      "status": "success"
+    }), 201
 
 #Document CRUD
 
@@ -216,7 +232,10 @@ def create_document():
   db.session.add(document)
   db.session.commit()
 
-  return f"The document was created", 201
+  return jsonify({
+      "msg": "The document was created",
+      "status": "success"
+    }), 201
 
 
 @app.route("/document/<int:id>", methods=['GET'])
@@ -257,7 +276,10 @@ def update_document():
     db.session.add(document)
     db.session.commit()
 
-    return f"Document updated", 201   
+    return jsonify({
+      "msg": "Document updated",
+      "status": "success"
+    }), 201   
 
 
 #Task CRUD
@@ -265,19 +287,20 @@ def update_document():
 @app.route('/task', methods=['POST'])
 def create_task():
   task = Task() 
-  #search_id = request.json.get("id")
-  #task_exist = Task.query.filter_by(user_id=search_id).first()
-  #if task_exist is not None:
-    #return "The task already exist"
-  #else:
-  task.name= request.json.get("name")
-  task.description= request.json.get("description")
+  search_id = request.json.get("id")
+  task_exist = Task.query.filter_by(user_id=search_id).first()
+  if task_exist is not None:
+    return "The task already exist"
+  else:
+   task_exist.name= request.json.get("name")
+   task_exist.description= request.json.get("description")
   
   db.session.add(task)
   db.session.commit()
 
-  return jsonify({"msg": "The task was created",
-                  "success": True
+  return jsonify({
+    "msg": "The task was created",
+    "status": "success"
   }),201
 
 @app.route("/task/<int:id>", methods=['GET'])
@@ -296,7 +319,7 @@ def delete_task(id):
     db.session.commit()
     return jsonify({
       "msg": "Task deleted",
-      "status": "Success"
+      "status": "success"
     }), 203
   else:
     return jsonify({"error":"Task not found"}),404
@@ -306,7 +329,10 @@ def update_task():
   id_to_search = request.json.get("id")
   task = Task.query.filter_by(id=id_to_search).first()
   if task is None:
-    return "The task does not exist", 401
+     return jsonify({
+      "error": "The task does not exist",
+      "status": False
+    }) , 401
   else:
     task.name= request.json.get("name")
     task.description= request.json.get("description")
@@ -314,73 +340,10 @@ def update_task():
     db.session.add(task)
     db.session.commit()
 
-    return f"Task updated", 201        
-
-
-#Activity CRUD
-
-@app.route('/activity', methods=['POST'])
-def create_activity():
-  #get_from_body = request.json.get("id")
-  activity = Activity() 
-  #activity_exist = Activity.query.filter_by(user_id=get_from_body).first()
-  #if activity_exist is not None:
-   #return "The activity already exist"
-  #else:
-  activity.name= request.json.get("name")
-  activity.place= request.json.get("place")
-  activity.description= request.json.get("description")
-  activity.date= request.json.get("date")
-  activity.status= request.json.get("status")
-  activity.user_id =request.json.get("user_id")
-  activity.task_id =request.json.get("task_id")
-
-  
-  db.session.add(activity)
-  db.session.commit()
-
-  return f"The activity was created", 201
-
-@app.route("/activity/<int:id>", methods=['GET'])
-def get_activity(id):
-  activity = Activity.query.filter_by(id=id).first()
-  if activity is not None:
-    return jsonify(activity.serialize()), 200
-  else:
-    return jsonify({"error":"Activity not found"}),404
-
-@app.route("/activity/<int:id>", methods=['DELETE'])
-def delete_activity(id):
-  activity = Activity.query.filter_by(id=id).first()
-  if activity is not None:
-    db.session.delete(activity)
-    db.session.commit()
     return jsonify({
-      "msg": "Activity deleted",
-      "status": "Success"
-    }), 203
-  else:
-    return jsonify({"error":"Activity not found"}),404
-
-@app.route('/activity', methods=["PUT"])
-def update_activity():
-  id_to_search = request.json.get("id")
-  activity = Activity.query.filter_by(id=id_to_search).first()
-  if activity is None:
-    return "The activity does not exist", 401
-  else:
-    activity.name= request.json.get("name")
-    activity.description= request.json.get("description")
-    activity.date= request.json.get("date")
-    activity.status= request.json.get("status")
-    activity.user_id= request.json.get("user_id")
-    activity.task_id= request.json.get("task_id")
-    
-    db.session.add(activity)
-    db.session.commit()
-
-    return f"Activity updated", 201
-
+      "msg": "Task updated",
+      "status": "success"
+    }), 201        
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
