@@ -83,8 +83,7 @@ def login():
           "token": token,
           "status": "success",
           "user": user_exist.serialize()
-
-        }), 201
+        }), 200
     else: 
        return f"Incorrect password", 400
   else:  
