@@ -69,6 +69,7 @@ class Task(db.Model):
     user = db.relationship(User)
     start_date = db.Column(db.String(10), nullable=False)
     end_date = db.Column(db.String(10), nullable=False)
+    status = db.Column(db.String(1), nullable=False)
       
     def serialize(self):
         return {
@@ -78,6 +79,7 @@ class Task(db.Model):
           "last_name": self.last_name,      
           "description": self.description,
           "start_date": self.start_date,
-          "end_date": self.end_date
+          "end_date": self.end_date,
+          "status": self.status
           }
 

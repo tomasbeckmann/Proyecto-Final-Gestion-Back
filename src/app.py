@@ -287,17 +287,13 @@ def update_document():
 @app.route('/task', methods=['POST'])
 def create_task():
   task = Task() 
-  search_id = request.json.get("id")
-  task_exist = Task.query.filter_by(user_id=search_id).first()
-  if task_exist is not None:
-    return "The task already exist"
-  else:
-   task_exist.name= request.json.get("name")
-   task_exist.last_name= request.json.get("last_name")
-   task_exist.description= request.json.get("description")
-   task_exist.user_id= request.json.get("user_id")
-   task_exist.start_date= request.json.get("start_date")
-   task_exist.end_date= request.json.get("end_date")
+  
+  task.name = request.json.get("name")
+  task.last_name = request.json.get("last_name")
+  task.description = request.json.get("description")
+  task.start_date = request.json.get("start_date")
+  task.end_date = request.json.get("end_date")
+  task.status = request.json.get("status")
   
   db.session.add(task)
   db.session.commit()
@@ -351,10 +347,9 @@ def update_task():
     task.name= request.json.get("name")
     task.last_name= request.json.get("last_name")
     task.description= request.json.get("description")
-    task.user_rol_id= request.json.get("user_rol_id")
-    task.user_id= request.json.get("user_id")
     task.start_date= request.json.get("start_date")
     task.end_date= request.json.get("end_date")
+    task.status = request.json.get("status")
     
     db.session.add(task)
     db.session.commit()
