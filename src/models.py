@@ -33,9 +33,9 @@ class User(db.Model):
         "name": self.name,
         "last_name": self.last_name,
         "email": self.email, 
-        "rut":self.rut
+        "rut":self.rut,
+        "deleted": self.deleted
         }
-
 
 class Document(db.Model):
     __tablename__="document"    
@@ -63,19 +63,21 @@ class Task(db.Model):
     tablename = "task"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
+    last_name = db.Column(db.String(250), nullable=False)
     description = db.Column(db.String(250), nullable=False) 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship(User)
-
-
-    
+    start_date = db.Column(db.String(10), nullable=False)
+    end_date = db.Column(db.String(10), nullable=False)
+      
     def serialize(self):
         return {
           "id": self.id,
-          "user_id": self.user.id,
-          "name": self.name, 
-          "description": self.description
+          "user_id": self.user_id,
+          "name": self.name,
+          "last_name": self.last_name,      
+          "description": self.description,
+          "start_date": self.start_date,
+          "end_date": self.end_date
           }
-
-
 

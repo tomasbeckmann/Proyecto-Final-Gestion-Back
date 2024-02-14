@@ -6,7 +6,6 @@ from datetime import timedelta
 from flask import Flask, request, jsonify, url_for
 from flask_migrate import Migrate
 from flask_swagger import swagger
-from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, User_rol,Document, Task
@@ -98,7 +97,6 @@ def get_user():
   users = User.query.all()
   users= list(map(lambda user: user.serialize(), users))
   
-
   return jsonify({
     "data": users,
     "status": 'success'
@@ -113,11 +111,13 @@ def get_oneuser(id):
     return jsonify({"error":"User not found"}),404
 
 
-@app.route("/user/<int:id>", methods=['DELETE'])
+@app.route("/user/<int:id>", methods=['PUT'])
 def delete_user(id):
-  user = User.query.filter_by(id=id).first()
+  id_to_search = request.json.get("id")
+  user = User.query.filter_by(id=id_to_search).first()
   if user is not None:
     user.deleted=  request.json.get("deleted")
+    user.id=  request.json.get("id")
     db.session.add(user)
     db.session.commit()
     
@@ -293,7 +293,11 @@ def create_task():
     return "The task already exist"
   else:
    task_exist.name= request.json.get("name")
+   task_exist.last_name= request.json.get("last_name")
    task_exist.description= request.json.get("description")
+   task_exist.user_id= request.json.get("user_id")
+   task_exist.start_date= request.json.get("start_date")
+   task_exist.end_date= request.json.get("end_date")
   
   db.session.add(task)
   db.session.commit()
@@ -310,6 +314,16 @@ def get_task(id):
     return jsonify(task.serialize()), 200
   else:
     return jsonify({"error":"Task not found"}),404
+
+@app.route("/tasks", methods=['GET'])
+def get_task_all():
+  task = Task.query.all()
+  tasks= list(map(lambda task_func: task_func.serialize(), task))
+  
+  return jsonify({
+    "data": tasks,
+    "status": 'success'
+  }),200
 
 @app.route("/task/<int:id>", methods=['DELETE'])
 def delete_task(id):
@@ -335,7 +349,12 @@ def update_task():
     }) , 401
   else:
     task.name= request.json.get("name")
+    task.last_name= request.json.get("last_name")
     task.description= request.json.get("description")
+    task.user_rol_id= request.json.get("user_rol_id")
+    task.user_id= request.json.get("user_id")
+    task.start_date= request.json.get("start_date")
+    task.end_date= request.json.get("end_date")
     
     db.session.add(task)
     db.session.commit()
