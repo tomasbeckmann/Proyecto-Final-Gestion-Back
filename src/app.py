@@ -45,6 +45,7 @@ def handle_invalid_usage(error):
 
 #User CRUD
 @app.route('/user', methods=['POST'])
+@jwt_required
 def create_user():
   get_from_body = request.json.get("email")
   user = User() 
@@ -93,16 +94,18 @@ def login():
   
 
 @app.route("/users", methods=['GET'])
+@jwt_required
 def get_user():
-  users = User.query.all()
-  users= list(map(lambda user: user.serialize(), users))
+ users = User.query.all()
+ users= list(map(lambda user: user.serialize(), users))
   
-  return jsonify({
+ return jsonify({
     "data": users,
     "status": 'success'
   }),200
 
 @app.route("/user/<int:id>", methods=['GET'])
+@jwt_required
 def get_oneuser(id):
   user = User.query.filter_by(id=id).first()
   if user is not None:
@@ -112,6 +115,7 @@ def get_oneuser(id):
 
 
 @app.route("/user/<int:id>", methods=['PUT'])
+@jwt_required
 def delete_user(id):
   id_to_search = request.json.get("id")
   user = User.query.filter_by(id=id_to_search).first()
@@ -130,6 +134,7 @@ def delete_user(id):
     return jsonify({"error":"User not found"}),404
 
 @app.route('/user', methods=["PUT"])
+@jwt_required
 def update_user():
   email_to_search = request.json.get("email")
   user = User.query.filter_by(email=email_to_search).first()
@@ -155,6 +160,7 @@ def update_user():
 #UserRol CRUD
 
 @app.route('/user_rol', methods=['POST'])
+@jwt_required
 def create_user_rol():
   get_from_body = request.json.get("id")
   user_rol = User_rol() 
@@ -172,6 +178,7 @@ def create_user_rol():
     }), 201
 
 @app.route("/user_rol/<int:id>", methods=['GET'])
+@jwt_required
 def get_user_rol(id):
   user_rol = User_rol.query.filter_by(id=id).first()
   if user_rol is not None:
@@ -180,6 +187,7 @@ def get_user_rol(id):
     return jsonify({"error":"User role not found"}),404
 
 @app.route("/user_rol/<int:id>", methods=['DELETE'])
+@jwt_required
 def delete_user_rol(id):
   user_rol = User_rol.query.filter_by(id=id).first()
   if user_rol is not None:
@@ -213,7 +221,8 @@ def update_user_rol():
 
 #Document CRUD
 
-@app.route('/document', methods=['POST'])           
+@app.route('/document', methods=['POST']) 
+@jwt_required          
 def create_document():
   search_for_id =request.json.get("user_id")
   search_for_name =request.json.get("name")
@@ -239,6 +248,7 @@ def create_document():
 
 
 @app.route("/document/<int:id>", methods=['GET'])
+@jwt_required
 def get_document(id):
   document = Document.query.filter_by(id=id).first()
   if document is not None:
@@ -247,6 +257,7 @@ def get_document(id):
     return jsonify({"error":"Document not found"}),404
 
 @app.route("/document/<int:id>", methods=['DELETE'])
+@jwt_required
 def delete_document(id):
   document = Document.query.filter_by(id=id).first()
   if document is not None:
@@ -260,6 +271,7 @@ def delete_document(id):
     return jsonify({"error":"Document not found"}),404
 
 @app.route('/document', methods=["PUT"])
+@jwt_required
 def update_document():
   id_to_search = request.json.get("id")
   document= Document()
@@ -285,6 +297,7 @@ def update_document():
 #Task CRUD
 
 @app.route('/task', methods=['POST'])
+@jwt_required
 def create_task():
   task = Task() 
   
@@ -304,6 +317,7 @@ def create_task():
   }),201
 
 @app.route("/task/<int:user_id>", methods=['GET'])
+@jwt_required
 def get_task(user_id):
   tasks = Task.query.filter_by(user_id=user_id).all()
   if tasks is not None:
@@ -312,6 +326,7 @@ def get_task(user_id):
     return jsonify({"error":"Task not found"}),404
 
 @app.route("/tasks", methods=['GET'])
+@jwt_required
 def get_task_all():
   task = Task.query.all()
   tasks= list(map(lambda task_func: task_func.serialize(), task))
@@ -322,6 +337,7 @@ def get_task_all():
   }),200
 
 @app.route("/task/<int:id>", methods=['DELETE'])
+@jwt_required
 def delete_task(id):
   task = Task.query.filter_by(id=id).first()
   if task is not None:
@@ -335,6 +351,7 @@ def delete_task(id):
     return jsonify({"error":"Task not found"}),404
 
 @app.route('/task', methods=["PUT"])
+@jwt_required
 def update_task():
   id_to_search = request.json.get("id")
   task = Task.query.filter_by(id=id_to_search).first()
