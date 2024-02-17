@@ -29,7 +29,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY']= "SUPER-CLAVE_SECRETA"
 app.config['SECRET_KEY']= "PALABRA_SECRETA"
 
-app.config['SQLALCHEMY_ECHO'] = True   #ESTO SE DEBE ELIMINAR DESPUES
+""" app.config['SQLALCHEMY_ECHO'] = True   #ESTO SE DEBE ELIMINAR DESPUES """
 
 expire_jwt= timedelta(minutes=5)
 
@@ -303,11 +303,11 @@ def create_task():
     "status": "success"
   }),201
 
-@app.route("/task/<int:id>", methods=['GET'])
-def get_task(id):
-  task = Task.query.filter_by(id=id).first()
-  if task is not None:
-    return jsonify(task.serialize()), 200
+@app.route("/task/<int:user_id>", methods=['GET'])
+def get_task(user_id):
+  tasks = Task.query.filter_by(user_id=user_id).all()
+  if tasks is not None:
+    return jsonify([task.serialize() for task in tasks]), 200
   else:
     return jsonify({"error":"Task not found"}),404
 
