@@ -31,7 +31,7 @@ app.config['SECRET_KEY']= "PALABRA_SECRETA"
 
 """ app.config['SQLALCHEMY_ECHO'] = True   #ESTO SE DEBE ELIMINAR DESPUES """
 
-expire_jwt= timedelta(minutes=5)
+expire_jwt= timedelta(minutes=10)
 
 MIGRATE = Migrate(app, db)
 db.init_app(app)
@@ -142,11 +142,12 @@ def update_user():
     return "The user does not exist", 401
   else:
     user.name= request.json.get("name")
-    user.last_name= request.json.get("lastname")
+    user.last_name= request.json.get("last_name")
     user.rut=  request.json.get("rut")
-    user.deleted=  request.json.get("deleted")
     user.email=  request.json.get("email")
-    user.password=  request.json.get("password")
+    password=  request.json.get("password")
+    passwordHash= bcrypt.generate_password_hash(password)
+    user.password = passwordHash
     user.userrol_id= request.json.get("userrol_id")
 
     db.session.add(user)
@@ -299,10 +300,8 @@ def update_document():
 @app.route('/task', methods=['POST'])
 @jwt_required()
 def create_task():
-  task = Task() 
-  
-  task.name = request.json.get("name")
-  task.last_name = request.json.get("last_name")
+  task = Task()
+  task.user_id = request.json.get("user_id")
   task.description = request.json.get("description")
   task.start_date = request.json.get("start_date")
   task.end_date = request.json.get("end_date")
@@ -361,8 +360,6 @@ def update_task():
       "status": False
     }) , 401
   else:
-    task.name= request.json.get("name")
-    task.last_name= request.json.get("last_name")
     task.description= request.json.get("description")
     task.start_date= request.json.get("start_date")
     task.end_date= request.json.get("end_date")

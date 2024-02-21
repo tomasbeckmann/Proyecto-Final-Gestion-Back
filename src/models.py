@@ -62,10 +62,8 @@ class Document(db.Model):
 class Task(db.Model):
     tablename = "task"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250), nullable=False)
-    last_name = db.Column(db.String(250), nullable=False)
     description = db.Column(db.String(250), nullable=False) 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.String(100), db.ForeignKey('user.id'))
     user = db.relationship(User)
     start_date = db.Column(db.String(10), nullable=False)
     end_date = db.Column(db.String(10), nullable=False)
@@ -74,12 +72,13 @@ class Task(db.Model):
     def serialize(self):
         return {
           "id": self.id,
-          "user_id": self.user_id,
-          "name": self.name,
-          "last_name": self.last_name,      
+          "user_id": self.user_id,    
           "description": self.description,
           "start_date": self.start_date,
           "end_date": self.end_date,
-          "status": self.status
+          "status": self.status,
+          "name": self.user.name,
+          "last_name": self.user.last_name
           }
+
 
