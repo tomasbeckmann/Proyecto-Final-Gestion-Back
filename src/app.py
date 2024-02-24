@@ -58,6 +58,7 @@ def create_user():
     user.rut=  request.json.get("rut")
     user.deleted=  request.json.get("deleted")
     user.email=  request.json.get("email")
+    user.url_img=  request.json.get("url_img")
     password=  request.json.get("password")
     passwordHash= bcrypt.generate_password_hash(password)
     user.password = passwordHash
@@ -145,6 +146,7 @@ def update_user():
     user.last_name= request.json.get("last_name")
     user.rut=  request.json.get("rut")
     user.email=  request.json.get("email")
+    user.url_img=  request.json.get("url_img")
     password=  request.json.get("password")
     passwordHash= bcrypt.generate_password_hash(password)
     user.password = passwordHash
