@@ -22,7 +22,7 @@ class User(db.Model):
     rut= db.Column(db.String(13), nullable=False)
     deleted= db.Column(db.Boolean(5), nullable=False, default= False)
     email = db.Column(db.String(250), unique= True)
-    url_img = db.Column(db.String(700), unique= True, nullable=True)
+    url_img = db.Column(db.String(250), unique= True, nullable=True)
     password = db.Column(db.String(250),unique=False, nullable=False)
     user_rol_id = db.Column(db.Integer, db.ForeignKey('user_rol.id'))
     user_rol= db.relationship(User_rol)
