@@ -22,6 +22,7 @@ class User(db.Model):
     rut= db.Column(db.String(13), nullable=False)
     deleted= db.Column(db.Boolean(5), nullable=False, default= False)
     email = db.Column(db.String(250), unique= True)
+    url_img = db.Column(db.String(250), unique= True, nullable=True)
     password = db.Column(db.String(250),unique=False, nullable=False)
     user_rol_id = db.Column(db.Integer, db.ForeignKey('user_rol.id'))
     user_rol= db.relationship(User_rol)
@@ -33,6 +34,7 @@ class User(db.Model):
         "name": self.name,
         "last_name": self.last_name,
         "email": self.email, 
+        "url_img": self.url_img, 
         "rut":self.rut,
         "deleted": self.deleted
         }
@@ -63,7 +65,7 @@ class Task(db.Model):
     tablename = "task"
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(250), nullable=False) 
-    user_id = db.Column(db.String(100), db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship(User)
     start_date = db.Column(db.String(10), nullable=False)
     end_date = db.Column(db.String(10), nullable=False)
